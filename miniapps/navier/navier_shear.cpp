@@ -40,6 +40,7 @@ struct s_NavierContext
    real_t kinvis = 1.0 / 100000.0;
    real_t t_final = 10 * 1e-3;
    real_t dt = 1e-3;
+   const char *device = "cpu";
 } ctx;
 
 void vel_shear_ic(const Vector &x, real_t t, Vector &u)
@@ -68,6 +69,26 @@ int main(int argc, char *argv[])
    Hypre::Init();
 
    int serial_refinements = 2;
+
+   OptionsParser args(argc, argv);
+   args.AddOption(&ctx.device, "-d", "--device",
+                  "Device configuration string, see Device::Configure().");
+   args.Parse();
+   if (!args.Good())
+   {
+      if (Mpi::Root())
+      {
+         args.PrintUsage(mfem::out);
+      }
+      return 1;
+   }
+   if (Mpi::Root())
+   {
+      args.PrintOptions(mfem::out);
+   }
+
+   Device device(ctx.device);
+   if (Mpi::Root()) { device.Print(); }
 
    Mesh *mesh = new Mesh("../../data/periodic-square.mesh");
    mesh->EnsureNodes();

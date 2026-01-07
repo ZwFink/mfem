@@ -29,6 +29,7 @@ struct s_NavierContext
    real_t kin_vis = 1.0 / Re_tau;
    real_t t_final = 50.0;
    real_t dt = -1.0;
+   const char *device = "cpu";
 } ctx;
 
 real_t mesh_stretching_func(const real_t y)
@@ -89,8 +90,28 @@ void vel_wall(const Vector &x, real_t t, Vector &u)
 
 int main(int argc, char *argv[])
 {
-   Mpi::Init();
+   Mpi::Init(argc, argv);
    Hypre::Init();
+
+   OptionsParser args(argc, argv);
+   args.AddOption(&ctx.device, "-d", "--device",
+                  "Device configuration string, see Device::Configure().");
+   args.Parse();
+   if (!args.Good())
+   {
+      if (Mpi::Root())
+      {
+         args.PrintUsage(mfem::out);
+      }
+      return 1;
+   }
+   if (Mpi::Root())
+   {
+      args.PrintOptions(mfem::out);
+   }
+
+   Device device(ctx.device);
+   if (Mpi::Root()) { device.Print(); }
 
    real_t Lx = 2.0 * M_PI;
    real_t Ly = 1.0;

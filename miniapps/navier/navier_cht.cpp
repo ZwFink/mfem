@@ -79,6 +79,7 @@ struct schwarz_common
    int ode_solver_type = 3;
    real_t alpha = 1.0e-2;
    real_t kappa = 0.5;
+   const char *device = "cpu";
 } schwarz;
 
 // Dirichlet conditions for velocity
@@ -162,6 +163,8 @@ int main(int argc, char *argv[])
                   "--no-visualization",
                   "Enable or disable GLVis visualization.");
    args.AddOption(&visport, "-p", "--send-port", "Socket for GLVis.");
+   args.AddOption(&schwarz.device, "-d", "--device",
+                  "Device configuration string, see Device::Configure().");
    args.Parse();
    if (!args.Good())
    {
@@ -172,6 +175,9 @@ int main(int argc, char *argv[])
    {
       args.PrintOptions(cout);
    }
+
+   Device device(schwarz.device);
+   if (myid == 0) { device.Print(); }
 
    const int nmeshes         = 2;
    mesh_file_list[0]         = "fluid-cht.mesh";

@@ -30,6 +30,7 @@ struct s_NavierContext
    bool ni = false;
    bool visualization = false;
    bool checkres = false;
+   const char *device = "cpu";
 } ctx;
 
 void vel_tgv(const Vector &x, real_t t, Vector &u)
@@ -249,6 +250,8 @@ int main(int argc, char *argv[])
       "-no-cr",
       "--no-checkresult",
       "Enable or disable checking of the result. Returns -1 on failure.");
+   args.AddOption(&ctx.device, "-d", "--device",
+                  "Device configuration string, see Device::Configure().");
    args.Parse();
    if (!args.Good())
    {
@@ -262,6 +265,9 @@ int main(int argc, char *argv[])
    {
       args.PrintOptions(mfem::out);
    }
+
+   Device device(ctx.device);
+   if (Mpi::Root()) { device.Print(); }
 
    Mesh orig_mesh("../../data/periodic-cube.mesh");
    Mesh mesh = Mesh::MakeRefined(orig_mesh, ctx.element_subdivisions,

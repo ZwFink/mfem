@@ -64,6 +64,7 @@ struct s_NavierContext
    bool ni = false;
    bool visualization = false;
    bool checkres = false;
+   const char *device = "cpu";
 } ctx;
 
 void vel_kovasznay(const Vector &x, real_t t, Vector &u)
@@ -125,6 +126,8 @@ int main(int argc, char *argv[])
       "--no-checkresult",
       "Enable or disable checking of the result. Returns -1 on failure.");
    args.AddOption(&visport, "-p", "--send-port", "Socket for GLVis.");
+   args.AddOption(&ctx.device, "-d", "--device",
+                  "Device configuration string, see Device::Configure().");
    args.Parse();
    if (!args.Good())
    {
@@ -138,6 +141,9 @@ int main(int argc, char *argv[])
    {
       args.PrintOptions(mfem::out);
    }
+
+   Device device(ctx.device);
+   if (Mpi::Root()) { device.Print(); }
 
    Mesh mesh = Mesh::MakeCartesian2D(2, 4, Element::QUADRILATERAL, false, 1.5,
                                      2.0);
