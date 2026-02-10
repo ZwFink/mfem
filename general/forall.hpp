@@ -20,7 +20,7 @@
 #include "mem_manager.hpp"
 #include "../linalg/dtensor.hpp"
 #ifdef MFEM_USE_PROTEUS
-#include <proteus/JitInterface.hpp>
+#include <proteus/JitInterface.h>
 #define MFEM_JIT_ANNOTATE __attribute__((annotate("jit", 1)))
 #else
 // Provide no-op stubs for proteus functions when JIT is disabled
